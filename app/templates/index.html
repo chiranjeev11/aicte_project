@@ -19,7 +19,7 @@
        <div class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh;">
 
 			<div class="mb-5">
-				<img class="btn not-recording" id="recorder" src="http://localhost:5000/static/icons/microphone-off.png">
+				<img class="btn not-recording" id="recorder" src="http://18.222.233.72/static/icons/microphone-off.png">
 			 </div>
 
 			<div class="p-3 mb-2 bg-light text-dark rounded" id="response-text">
@@ -57,7 +57,7 @@
             if (e.target.classList.contains("not-recording")){
                     e.target.classList.remove("not-recording")
                     e.target.classList.add("recording")
-                    e.target.src = "http://localhost:5000/static/icons/microphone-on.png"
+                    e.target.src = "http://18.222.233.72/static/icons/microphone-on.png"
                     
                     mediaRecorder.start();
 					$('#response-text').text("Recording...")
@@ -67,7 +67,7 @@
                 else{
                     e.target.classList.remove("recording")
                     e.target.classList.add("not-recording")
-                    e.target.src = "http://localhost:5000/static/icons/microphone-off.png"
+                    e.target.src = "http://18.222.233.72/static/icons/microphone-off.png"
                     
                     mediaRecorder.stop();
 					$('#response-text').text("Loading...  Please Wait")
@@ -107,7 +107,7 @@
 		formData.append("audio_file", audioData)
 
 		// Pass the audio url to the 2nd video tag
-		fetch("http://localhost:5000/audioBlob", { method: 'POST', body: formData }).then(
+		fetch("http://18.222.233.72/audioBlob", { method: 'POST', body: formData }).then(
 			response=> response.json()
 		).then(
 			data=>{

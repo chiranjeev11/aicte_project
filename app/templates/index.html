@@ -107,7 +107,7 @@
 		formData.append("audio_file", audioData)
 
 		// Pass the audio url to the 2nd video tag
-		fetch("http://18.222.233.72/audioBlob", { method: 'POST', body: formData }).then(
+		fetch("https://18.222.233.72/audioBlob", { method: 'POST', body: formData }).then(
 			response=> response.json()
 		).then(
 			data=>{

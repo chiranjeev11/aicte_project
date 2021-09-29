@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto">
+    <h1 class="text-center">Audio List</h1>
+    <table class="table mt-5 shadow">
+		<thead>
+			<tr>
+				<th class="text-center" scope="col">Created at</th>
+				<th class="text-center" scope="col">Audio</th>
+				<th class="text-center" scope="col">Transcipt</th>
+                <!-- <th class="text-center" scope="col">Action</th> -->
+			</tr>
+		</thead>
+		<tbody>
+			{% for transcript in transcripts %}
+			<tr>
+				<td class="text-center">{{ transcript.created_at }}</td>
+				<td class="text-center">
+                    <audio controls>
+                        <source src="http://localhost:5000/{{ transcript.audio_file_name }}" type="audio/wav">
+                    </audio>
+                </td>
+                <td class="text-center">{{ transcript.transcript }}</td>
+				<!-- <td class="button-block text-center"><button class="delete btn btn-primary" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td> -->
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+<!-- <script>
+    $(document).ready(()=>{
+        $('.delete').on('click', (e)=>{
+        console.log($(e.target).attr('audio_id'))
+        $.ajax({
+
+        })
+    })
+    })
+    
+</script> -->
+
+{% endblock %}

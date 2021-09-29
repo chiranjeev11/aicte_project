@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+        <div class="col-md-5 mx-auto">
+			<h1 class="text-center">Login</h1>
+
+			<form method="post" novalidate>
+				{{ form.hidden_tag() }}
+                <div class="mb-3">
+					{{ form.name.label(for="name", class="form-label") }}
+					{{ form.name(size=32,type="text", class="form-control", id="name") }}
+					{% for error in form.name.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+				<div class="mb-3">
+					{{ form.email.label(for="email", class="form-label") }}
+					{{ form.email(size=32,type="text", class="form-control", id="email") }}
+					{% for error in form.email.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+				<div class="mb-3">
+					{{ form.password.label(for="password", class="form-label") }}
+					{{ form.password(size=32,type="password", class="form-control", id="password") }}
+					{% for error in form.password.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+                <div class="mb-3">
+					{{ form.password2.label(for="password2", class="form-label") }}
+					{{ form.password2(size=32,type="password", class="form-control", id="password2") }}
+					{% for error in form.password2.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+				
+				<div style="text-align: end;">
+					{{ form.submit(class="btn btn-outline-primary") }}
+				</div>
+			</form>
+		</div>
+        
+{% endblock %}

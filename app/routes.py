@@ -1,178 +1,182 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, redirect, url_for, flash, render_template
+from google.api_core.gapic_v1 import method
 from google.cloud import speech
 # from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import storage
+from flask_login import current_user, login_user, logout_user, login_required
+from app.forms import LoginForm, RegistrationForm
+from app.models import Audio, User
 import os
 import os.path
 from os import path
 
-from app import app
+from app import app, db, login
 import ffmpeg
+import datetime
   
   
 
 
 
 @app.route('/')
+@login_required
 def index():
 
-    return render_template('index.html')
+	return render_template('index.html')
+
+@app.route('/audio')
+@login_required
+def audio():
+
+	transcripts = current_user.audios.all()
+
+	return render_template('audio.html', transcripts=transcripts)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+
+	if current_user.is_authenticated:
+
+		return redirect(url_for('index'))
+
+	form = LoginForm()
+
+	if form.validate_on_submit():
+		
+		user = User.query.filter_by(email=form.email.data).first()
+
+
+		if user is None or not user.check_password(form.password.data):
+
+			flash('Invalid username or password')
+
+			return redirect(url_for('login'))
+
+		login_user(user, remember=form.remember_me.data)
+
+		return redirect(url_for('index'))
+
+	return render_template('login.html', title='Sign In', form=form)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+
+	if current_user.is_authenticated:
+
+		return redirect(url_for('index'))
+
+	form = RegistrationForm()
+
+	if form.validate_on_submit():
+
+		user = User(name=form.name.data, email=form.email.data)
+
+		user.set_password(form.password.data)
+
+		db.session.add(user)
+
+		db.session.commit()
+
+		flash('Congratulations, you are now a registered user!')
+
+		return redirect(url_for('login'))
+
+	return render_template('register.html', title='Register', form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+
+	logout_user()
+
+	return redirect(url_for('login'))
+
 
 @app.route('/audioBlob', methods=['GET', 'POST'])
+@login_required
 def convertSpeechToText():
-    data = request.files['audio_file'].read()
-
-    # print(data)
-
-
-    if path.exists("app/static/audioFiles/audio.wav"):
-        os.remove("app/static/audioFiles/audio.wav")
-
-    with open("app/static/audioFiles/audio.wav", "wb") as file:
-        file.write(data)
-
-    if path.exists("app/static/audioFiles/audio_converted_ffmpeg.wav"):
-        os.remove("app/static/audioFiles/audio_converted_ffmpeg.wav")
-
-    wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app/static/audioFiles/audio_converted_ffmpeg.wav")
-    
-    # Instantiates a client
-    client = speech.SpeechClient()
-
-    with open("app/static/audioFiles/audio_converted_ffmpeg.wav", "rb") as file:
-        content = file.read()
 
 
 
-    # delete_blob('aicte', 'audio')
-    
-    # upload_blob("aicte", "app/static/audioFiles/audio.wav","preamble.wav" )
-
-    # download_blob('aicte', 'audio.wav', 'app/static/downloadAudio/audio1.wav')
+	data = request.files['audio_file'].read()
 
 
-    
+	if path.exists("app/static/audioFiles/audio.wav"):
+		os.remove("app/static/audioFiles/audio.wav")
 
-    # The name of the audio file to transcribe
-    # gcs_uri = "gs://aicte/audio.wav"
+	with open("app/static/audioFiles/audio.wav", "wb") as file:
+		file.write(data)
 
-    audio = speech.RecognitionAudio(content=content)
+	current_time = datetime.datetime.now()
 
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        # sample_rate_hertz=48000,
-        # audio_channel_count = 2,
-        language_code="en-US",
-        # model="video"
-    )
+	audio_file_path = "/static/audioFiles/" + current_user.email + '_' + str(current_time) + '.wav'
 
-    # # Detects speech in the audio file
-    operation = client.long_running_recognize(config=config, audio=audio)
+	wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app{}".format(audio_file_path))
+	
+	# Instantiates a client
+	client = speech.SpeechClient()
 
-    # print(response)audio.wav
+	with open("app{}".format(audio_file_path), "rb") as file:
+		content = file.read()
 
 
+	
 
-    response = operation.result(timeout=90)
+	# The name of the audio file to transcribe
+	# gcs_uri = "gs://aicte/audio.wav"
 
-    print(response)
+	audio = speech.RecognitionAudio(content=content)
 
-    transcript_array = []
+	config = speech.RecognitionConfig(
+		encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+		# sample_rate_hertz=48000,
+		# audio_channel_count = 2,
+		language_code="en-US",
+		# model="video"
+	)
 
-    for result in response.results:
-        print("Transcript: {}".format(result.alternatives[0].transcript))
-        transcript_array.append(result.alternatives[0].transcript)
+	# # Detects speech in the audio file
+	operation = client.long_running_recognize(config=config, audio=audio)
 
-    print(transcript_array)
-
-    return jsonify({"status":"success", "Transcript":transcript_array})
-
-    
-
-
-    
-
-
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
-    # The ID of your GCS bucket
-    # bucket_name = "aicte"
-    # The path to your file to upload
-    # source_file_name = data
-    # The ID of your GCS object
-    # destination_blob_name = "audio"
-
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-
-    blob.upload_from_filename(source_file_name)
-
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
-        )
-    )
-
-    
-def list_blobs(bucket_name):
-    """Lists all the blobs in the bucket."""
-    # bucket_name = "your-bucket-name"
-
-    storage_client = storage.Client()
-
-    # Note: Client.list_blobs requires at least package version 1.17.0.
-    blobs = storage_client.list_blobs(bucket_name)
-
-    for blob in blobs:
-        print(blob.name)
+	# print(response)audio.wav
 
 
-def delete_blob(bucket_name, blob_name):
-    """Deletes a blob from the bucket."""
-    # bucket_name = "your-bucket-name"
-    # blob_name = "your-object-name"
 
-    storage_client = storage.Client()
+	response = operation.result(timeout=90)
 
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    blob.delete()
+	print(response)
 
-    print("Blob {} deleted.".format(blob_name))
+	transcript = ""
+
+	transcript_array = []
+
+	for result in response.results:
+		print("Transcript: {}".format(result.alternatives[0].transcript))
+		transcript_array.append(result.alternatives[0].transcript)
+		transcript+=result.alternatives[0].transcript
+
+	print(transcript)
+
+	audio_obj = Audio(audio_file_name=audio_file_path, transcript=transcript, user_id=current_user.id)
+
+	db.session.add(audio_obj)
+
+	db.session.commit()
+
+	return jsonify({"status":"success", "Transcript":transcript_array})
+
+# @app.route('/audio/delete', methods=['POST', 'GET'])
+# @login_required
+# def audio_delete():
 
 
-def download_blob(bucket_name, source_blob_name, destination_file_name):
-    """Downloads a blob from the bucket."""
-    # The ID of your GCS bucket
-    # bucket_name = "your-bucket-name"
 
-    # The ID of your GCS object
-    # source_blob_name = "storage-object-name"
-
-    # The path to which the file should be downloaded
-    # destination_file_name = "local/path/to/file"
-
-    storage_client = storage.Client()
-
-    bucket = storage_client.bucket(bucket_name)
-
-    # Construct a client side representation of a blob.
-    # Note `Bucket.blob` differs from `Bucket.get_blob` as it doesn't retrieve
-    # any content from Google Cloud Storage. As we don't need additional data,
-    # using `Bucket.blob` is preferred here.
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
-
-    print(
-        "Downloaded storage object {} from bucket {} to local file {}.".format(
-            source_blob_name, bucket_name, destination_file_name
-        )
-    )
-
+	return jsonify({"status":"success"})
 
 def wemp_to_wav_convertor(input_file, output_file):
 
-    stream = ffmpeg.input(input_file)
-    stream = ffmpeg.output(stream, output_file)
-    ffmpeg.run(stream)
+	stream = ffmpeg.input(input_file)
+	stream = ffmpeg.output(stream, output_file)
+	ffmpeg.run(stream)

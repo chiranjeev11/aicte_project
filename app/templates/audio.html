@@ -18,7 +18,7 @@
 				<td class="text-center">{{ transcript.created_at }}</td>
 				<td class="text-center">
                     <audio controls>
-                        <source src="http://localhost:5000/{{ transcript.audio_file_name }}" type="audio/wav">
+                        <source src="{{ transcript.audio_file_name }}" type="audio/wav">
                     </audio>
                 </td>
                 <td class="text-center">{{ transcript.transcript }}</td>

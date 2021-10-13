@@ -16,7 +16,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% if current_user.name=="admin" %}
+			{% if current_user.name=="Admin" %}
 				{% for user in transcripts %}
 					{% for transcript in user.user_transcripts %}
 					<tr>

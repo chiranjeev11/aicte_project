@@ -83,7 +83,7 @@ def register():
 
 	if form.validate_on_submit():
 
-		if form.name.data=="admin":
+		if form.name.data.lower()=="admin":
 			flash('Please use a different name', 'error')
 			return redirect(url_for('register'))
 

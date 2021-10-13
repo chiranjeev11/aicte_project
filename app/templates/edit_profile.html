@@ -11,7 +11,11 @@
 			<div class="col">
 				<div class="form-group m-4">
 					{{ form.name.label() }}
+					{% if current_user.name=="Admin" %}
+					{{ form.name(size=32,type="text", class="form-control", value=user.name, placeholder="Enter Name *", readonly="true")}}
+					{% else %}
 					{{ form.name(size=32,type="text", class="form-control", value=user.name, placeholder="Enter Name *")}}
+					{% endif %}
 					{% for error in form.name.errors %}
 					<span class="small" style="color: red">{{ error }}</span>
 					{% endfor %}

@@ -28,7 +28,7 @@ def index():
 @login_required
 def audio():
 
-	if current_user.name=="admin":
+	if current_user.name.lower()=="admin":
 
 		users = User.query.all()
 
@@ -38,7 +38,9 @@ def audio():
 
 			user_transcripts = user.audios.all()
 
-			transcripts.append({"user":user.name, "user_transcripts":user_transcripts})
+			if user_transcripts:
+
+				transcripts.append({"user":user.name, "user_transcripts":user_transcripts})
 	else:
 
 		transcripts = current_user.audios.all()

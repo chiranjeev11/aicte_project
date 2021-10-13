@@ -3,10 +3,11 @@
 {% block content %}
 <div class="mx-auto">
     <h1 class="text-center">Audio List</h1>
+	{% if transcripts %}
     <table class="table mt-5 shadow">
 		<thead>
 			<tr>
-				{% if current_user.name=="admin" %}
+				{% if current_user.name=="Admin" %}
 				<th class="text-center" scope="col">Name</th>
 				{% endif %}
 				<th class="text-center" scope="col">Created at</th>
@@ -16,12 +17,28 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% if current_user.name=="Admin" %}
-				{% for user in transcripts %}
-					{% for transcript in user.user_transcripts %}
+				{% if current_user.name=="Admin" %}
+						{% for user in transcripts %}
+							{% for transcript in user.user_transcripts %}
+							<tr>
+								
+								<td class="text-center">{{ user.user }}</td>
+								
+								<td class="text-center">{{ transcript.created_at }}</td>
+								<td class="text-center">
+									<audio controls>
+										<source src="{{ transcript.audio_file_name }}" type="audio/wav">
+									</audio>
+								</td>
+								<td class="text-center">{{ transcript.transcript }}</td>
+								<td class="button-block text-center"><button class="delete btn btn-danger" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td>
+							</tr>
+							{% endfor %}
+						{% endfor %}
+				{% else %}
+					{% for transcript in transcripts %}
 					<tr>
 						
-						<td class="text-center">{{ user.user }}</td>
 						
 						<td class="text-center">{{ transcript.created_at }}</td>
 						<td class="text-center">
@@ -33,25 +50,13 @@
 						<td class="button-block text-center"><button class="delete btn btn-danger" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td>
 					</tr>
 					{% endfor %}
-				{% endfor %}
-			{% else %}
-				{% for transcript in transcripts %}
-				<tr>
-					
-					
-					<td class="text-center">{{ transcript.created_at }}</td>
-					<td class="text-center">
-						<audio controls>
-							<source src="{{ transcript.audio_file_name }}" type="audio/wav">
-						</audio>
-					</td>
-					<td class="text-center">{{ transcript.transcript }}</td>
-					<td class="button-block text-center"><button class="delete btn btn-danger" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td>
-				</tr>
-				{% endfor %}
-			{% endif %}
+				{% endif %}
+			
 		</tbody>
 	</table>
+	{% else %}
+		<p class="text-center">No audio available</p>
+	{% endif %}
 </div>
 <script>
     $(document).ready(()=>{

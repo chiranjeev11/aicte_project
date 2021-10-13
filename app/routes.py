@@ -28,7 +28,20 @@ def index():
 @login_required
 def audio():
 
-	transcripts = current_user.audios.all()
+	if current_user.name=="admin":
+
+		users = User.query.all()
+
+		transcripts = []
+
+		for user in users:
+
+			user_transcripts = user.audios.all()
+
+			transcripts.append({"user":user.name, "user_transcripts":user_transcripts})
+	else:
+
+		transcripts = current_user.audios.all()
 
 	return render_template('audio.html', transcripts=transcripts)
 
@@ -69,6 +82,10 @@ def register():
 	form = RegistrationForm()
 
 	if form.validate_on_submit():
+
+		if form.name.data=="admin":
+			flash('Please use a different name', 'error')
+			return redirect(url_for('register'))
 
 		user = User(name=form.name.data, email=form.email.data)
 
@@ -228,11 +245,21 @@ def convertSpeechToText():
 
 	return jsonify({"status":"success", "Transcript":transcript_array})
 
-# @app.route('/audio/delete', methods=['POST', 'GET'])
-# @login_required
-# def audio_delete():
+@app.route('/audio/delete', methods=['POST', 'GET'])
+@login_required
+def audio_delete():
 
+	audio_id = request.args.get('id')
 
+	audio = Audio.query.filter_by(id=int(audio_id)).first()
+
+	audio_path = app.root_path+audio.audio_file_name
+
+	os.remove(audio_path)
+
+	db.session.delete(audio)
+
+	db.session.commit()
 
 	return jsonify({"status":"success"})
 

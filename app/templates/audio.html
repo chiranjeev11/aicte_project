@@ -6,38 +6,69 @@
     <table class="table mt-5 shadow">
 		<thead>
 			<tr>
+				{% if current_user.name=="admin" %}
+				<th class="text-center" scope="col">Name</th>
+				{% endif %}
 				<th class="text-center" scope="col">Created at</th>
 				<th class="text-center" scope="col">Audio</th>
 				<th class="text-center" scope="col">Transcipt</th>
-                <!-- <th class="text-center" scope="col">Action</th> -->
+                <th class="text-center" scope="col">Action</th>
 			</tr>
 		</thead>
 		<tbody>
-			{% for transcript in transcripts %}
-			<tr>
-				<td class="text-center">{{ transcript.created_at }}</td>
-				<td class="text-center">
-                    <audio controls>
-                        <source src="{{ transcript.audio_file_name }}" type="audio/wav">
-                    </audio>
-                </td>
-                <td class="text-center">{{ transcript.transcript }}</td>
-				<!-- <td class="button-block text-center"><button class="delete btn btn-primary" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td> -->
-			</tr>
-			{% endfor %}
+			{% if current_user.name=="admin" %}
+				{% for user in transcripts %}
+					{% for transcript in user.user_transcripts %}
+					<tr>
+						
+						<td class="text-center">{{ user.user }}</td>
+						
+						<td class="text-center">{{ transcript.created_at }}</td>
+						<td class="text-center">
+							<audio controls>
+								<source src="{{ transcript.audio_file_name }}" type="audio/wav">
+							</audio>
+						</td>
+						<td class="text-center">{{ transcript.transcript }}</td>
+						<td class="button-block text-center"><button class="delete btn btn-danger" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td>
+					</tr>
+					{% endfor %}
+				{% endfor %}
+			{% else %}
+				{% for transcript in transcripts %}
+				<tr>
+					
+					
+					<td class="text-center">{{ transcript.created_at }}</td>
+					<td class="text-center">
+						<audio controls>
+							<source src="{{ transcript.audio_file_name }}" type="audio/wav">
+						</audio>
+					</td>
+					<td class="text-center">{{ transcript.transcript }}</td>
+					<td class="button-block text-center"><button class="delete btn btn-danger" title="delete" audio_id="{{ transcript.id }}" >Delete</button></td>
+				</tr>
+				{% endfor %}
+			{% endif %}
 		</tbody>
 	</table>
 </div>
-<!-- <script>
+<script>
     $(document).ready(()=>{
         $('.delete').on('click', (e)=>{
-        console.log($(e.target).attr('audio_id'))
-        $.ajax({
-
-        })
-    })
+			if(confirm("Are you sure you want to delete this recording")){
+				fetch(`/audio/delete?id=${$(e.target).attr('audio_id')}`).then(
+					response=> response.json()
+				).then(
+					data=>{
+						$(e.target).parent().parent().hide()
+					}
+				)
+			}
+        
+    	})
     })
     
-</script> -->
+</script>
 
 {% endblock %}

@@ -44,10 +44,33 @@
 			0% { transform: rotate(0deg); }
 			100% { transform: rotate(360deg); }
 			}
+
+			.star{
+          color: goldenrod;
+          font-size: 2.0rem;
+          padding: 0 1rem; /* space out the stars */
+        }
+        .star::before{
+          content: '\2606';    /* star outline */
+          cursor: pointer;
+        }
+        .star.rated::before{
+          /* the style for a selected star */
+          content: '\2605';  /* filled star */
+        }
+        
+        .stars{
+            counter-reset: rateme 0;   
+            font-size: 2.0rem;
+            font-weight: 900;
+        }
+        .star.rated{
+            counter-increment: rateme 1;
+        }
 	</style>
 </head>
 <body>
-	<nav class="navbar navbar-expand-md navbar-light bg-light">
+	<nav class="navbar sticky-top navbar-expand-md navbar-light bg-light">
 		<div class="container">
 			<a href="{{ url_for('index') }}" class="navbar-brand"><img src="/static/images/logo_image.jpeg" height="17%" width="17%" class="mr-3" >THE RAKSHAK</a>
 			<button class="navbar-toggler" data-toggle='collapse' data-target="#navbarContent"aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +80,16 @@
 				 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                      <li>
-                        <a class="dropdown-item" href="{{ url_for('index') }}">Record</a>
+                        <a class="dropdown-item" href="{{ url_for('index') }}">Home</a>
                      </li>
                      <li>
                         <a class="dropdown-item" href="{{ url_for('audio') }}">Audio</a>
                      </li>
+					 	{% if current_user.name == 'Admin' %}
+							<li>
+								<a class="dropdown-item" href="{{ url_for('feedback') }}">Feedback</a>
+							</li>
+						{% endif %}
                      {% endif %}
 				</ul>
 
@@ -94,7 +122,7 @@
 		</div>
 	</nav>
 	<div class="container">
-		<div class="d-flex justify-content-center" style="z-index: 2">
+		<div id="flash-messages" class="d-flex justify-content-center" style="z-index: 2">
 			{% with messages = get_flashed_messages(category_filter=["message"]) %}
 	        {% if messages %}
 	        <ul>

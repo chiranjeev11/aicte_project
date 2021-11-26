@@ -5,7 +5,7 @@ from google.cloud import speech
 from google.cloud import storage
 from flask_login import current_user, login_user, logout_user, login_required
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, ChangePasswordForm
-from app.models import Audio, User
+from app.models import Audio, User, User_Feedback
 import os
 import os.path
 from os import path
@@ -23,6 +23,20 @@ import datetime
 def index():
 
 	return render_template('index.html')
+
+@app.route('/feedback')
+@login_required
+def feedback():
+
+	users = User.query.all()
+
+	users_list = []
+
+	for user in users:
+		for feedback in user.feedback:
+			users_list.append({"name":user.name, "feedback_rating": feedback.rating, "feedback_message": feedback.message})
+
+	return render_template('feedback.html', users=users_list)
 
 @app.route('/audio')
 @login_required
@@ -189,16 +203,22 @@ def convertSpeechToText():
 	with open("app/static/audioFiles/audio.wav", "wb") as file:
 		file.write(data)
 
-	current_time = datetime.datetime.now()
+	if path.exists("app/static/audioFiles/audio_converted_wav.wav"):
+		os.remove("app/static/audioFiles/audio_converted_wav.wav")
 
-	audio_file_path = "/static/audioFiles/" + current_user.email + '_' + str(current_time) + '.wav'
+	wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app/static/audioFiles/audio_converted_wav.wav")
+	
 
-	wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app{}".format(audio_file_path))
+	# current_time = datetime.datetime.now()
+
+	# audio_file_path = "/static/audioFiles/" + current_user.email + '_' + str(current_time) + '.wav'
+
+	# wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app{}".format(audio_file_path))
 	
 	# Instantiates a client
 	client = speech.SpeechClient()
 
-	with open("app{}".format(audio_file_path), "rb") as file:
+	with open("app{}".format("/static/audioFiles/audio_converted_wav.wav"), "rb") as file:
 		content = file.read()
 
 
@@ -237,7 +257,26 @@ def convertSpeechToText():
 		transcript_array.append(result.alternatives[0].transcript)
 		transcript+=result.alternatives[0].transcript
 
-	print(transcript)
+
+	# audio_obj = Audio(audio_file_name=audio_file_path, transcript=transcript, user_id=current_user.id)
+
+	# db.session.add(audio_obj)
+
+	# db.session.commit()
+
+	return jsonify({"status":"success", "Transcript":transcript_array})
+
+@app.route('/saveAudio', methods=['GET', 'POST'])
+@login_required
+def save_audio():
+
+	transcript = request.form.get('transcript')
+
+	current_time = datetime.datetime.now()
+
+	audio_file_path = "/static/audioFiles/" + current_user.email + '_' + str(current_time) + '.wav'
+
+	wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app{}".format(audio_file_path))
 
 	audio_obj = Audio(audio_file_name=audio_file_path, transcript=transcript, user_id=current_user.id)
 
@@ -245,7 +284,35 @@ def convertSpeechToText():
 
 	db.session.commit()
 
-	return jsonify({"status":"success", "Transcript":transcript_array})
+	return jsonify({"status":"success"})
+
+@app.route('/rateAudio', methods=['POST', 'GET'])
+@login_required
+def rate_audio():
+	
+	rating = request.form.get('rating')
+	message = request.form.get('message')
+
+	user_feedback = current_user.feedback
+
+	if user_feedback:
+
+		feedback=user_feedback[0]
+
+		feedback.rating=rating
+
+		feedback.message = message
+
+	else:
+
+		feedback = User_Feedback(user_id=current_user.id, rating=rating, message=message)
+
+	db.session.add(feedback)
+
+	db.session.commit()
+
+
+	return jsonify({"status":"success"})
 
 @app.route('/audio/delete', methods=['POST', 'GET'])
 @login_required

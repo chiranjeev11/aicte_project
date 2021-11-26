@@ -1,4 +1,5 @@
 from flask import current_app
+from sqlalchemy.orm import backref
 from app import db, login
 import time
 from flask_login import UserMixin
@@ -18,12 +19,14 @@ class User(UserMixin, db.Model):
 
 	password_hash = db.Column(db.String(128))
 
+	feedback = db.relationship('User_Feedback', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+
 	audios = db.relationship('Audio', backref='user', lazy='dynamic', cascade='all, delete-orphan')
 
 
 	def __repr__(self):
 
-		return '<User {}>'.format(self.username)
+		return '<User {}>'.format(self.name)
 
 	def set_password(self, password):
 
@@ -44,6 +47,18 @@ class Audio(db.Model):
 
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	
+	created_at = db.Column(db.String(255), nullable=False, default=datetime.utcnow)
+
+class User_Feedback(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+	rating = db.Column(db.Integer)
+
+	message = db.Column(db.Text)
+
 	created_at = db.Column(db.String(255), nullable=False, default=datetime.utcnow)
 
 @login.user_loader

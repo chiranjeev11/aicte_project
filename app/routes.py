@@ -295,7 +295,7 @@ def rate_audio():
 
 	user_feedback = current_user.feedback
 
-	if user_feedback:
+	if list(user_feedback):
 
 		feedback=user_feedback[0]
 

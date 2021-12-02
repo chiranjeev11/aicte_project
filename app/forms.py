@@ -1,6 +1,6 @@
 
 from flask_wtf  import FlaskForm, Form
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FileField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FileField, IntegerField, DateField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from app.models import User
 from flask_wtf.file import FileAllowed
@@ -20,6 +20,10 @@ class EditProfileForm(FlaskForm):
 	name = StringField('Name', validators=[DataRequired()])
 
 	email = StringField('Email', validators=[DataRequired(), Email()])
+	
+	dob = DateField('DOB', validators=[DataRequired()])
+
+	gender = StringField('Gender', validators=[DataRequired()])
 
 	submit = SubmitField('Edit Profile')
 
@@ -40,6 +44,10 @@ class RegistrationForm(FlaskForm):
 	name = StringField('Name', validators=[DataRequired()])
 
 	email = StringField('Email', validators=[DataRequired(), Email()])
+
+	dob = DateField('DOB', validators=[DataRequired()])
+
+	gender = StringField('Gender', validators=[DataRequired()])
 
 	password = PasswordField('Password', validators=[DataRequired()])
 

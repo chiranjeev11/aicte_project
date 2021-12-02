@@ -67,6 +67,38 @@
         .star.rated{
             counter-increment: rateme 1;
         }
+		/* The sidebar menu */
+.sidebar {
+  height: 100%; /* 100% Full-height */
+  position: fixed; /* Stay in place */ 
+  top: 0;
+  left: 0;
+  background-color: #111; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  margin-top: 90px;
+  padding-top: 20px; /* Place content 60px from the top */
+}
+
+/* The sidebar links */
+.sidebar a {
+  padding: 8px 8px 8px 8px;
+  text-decoration: none;
+  font-size: 20px;
+  color: #818181;
+  display: block;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidebar a:hover {
+  color: #f1f1f1;
+}
+
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidebar {padding-top: 15px;}
+  .sidebar a {font-size: 18px;}
+}
 	</style>
 </head>
 <body>
@@ -77,35 +109,10 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarContent">
-				 <ul class="navbar-nav">
-                    {% if current_user.is_authenticated %}
-                     <li>
-                        <a class="dropdown-item" href="{{ url_for('index') }}">Home</a>
-                     </li>
-                     <li>
-                        <a class="dropdown-item" href="{{ url_for('audio') }}">Audio</a>
-                     </li>
-					 	{% if current_user.name == 'Admin' %}
-							<li>
-								<a class="dropdown-item" href="{{ url_for('feedback') }}">Feedback</a>
-							</li>
-						{% endif %}
-                     {% endif %}
-				</ul>
-
 				<ul class="navbar-nav ml-auto">
 					{% if current_user.is_authenticated %}
-                  <li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						{{ current_user.name }}
-					  </a>
-					  <div class="dropdown-menu shadow rounded" aria-labelledby="navbarDropdown">
-						<a class="dropdown-item" href="{{ url_for('edit_profile') }}">Edit Profile</a>
-						<a class="dropdown-item" href="{{ url_for('change_password') }}">Change Password</a>
-						<div class="dropdown-divider"></div>
-						<a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
-					  </div>
-                    
+                  <li class="nav-item">
+					<a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
                   </li>
                     {% else %}
                     <li class="nav-item">
@@ -120,7 +127,9 @@
 
 			</div>
 		</div>
+
 	</nav>
+	
 	<div class="container">
 		<div id="flash-messages" class="d-flex justify-content-center" style="z-index: 2">
 			{% with messages = get_flashed_messages(category_filter=["message"]) %}
@@ -168,8 +177,24 @@
 	</div>
 	 
 	<div class="container">
-		{% block content %}
-		{% endblock %}
+		<div>
+			{% if current_user.is_authenticated %}
+			<div id="mySidebar" class="sidebar">
+				<a href="{{ url_for('index') }}">Home</a>
+				<a href="{{ url_for('audio') }}">Audio</a>
+				{% if current_user.name == 'Admin' %}
+					<a href="{{ url_for('feedback') }}">Feedback</a>
+				{% endif %}
+				<a href="{{ url_for('edit_profile') }}">Edit Profile</a>
+				<a href="{{ url_for('change_password') }}">Change Password</a>
+			</div>
+			{% endif %}
+		</div>
+		<div style="width: 80vw; margin-left: 65px;">
+			{% block content %}
+			{% endblock %}
+		</div>
+		
 	</div>
 	<script>
 		$(document).ready(function(){

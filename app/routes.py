@@ -103,7 +103,7 @@ def register():
 			flash('Please use a different name', 'error')
 			return redirect(url_for('register'))
 
-		user = User(name=form.name.data, email=form.email.data)
+		user = User(name=form.name.data, email=form.email.data, dob=form.dob.data, gender=form.gender.data)
 
 		user.set_password(form.password.data)
 
@@ -131,6 +131,10 @@ def edit_profile():
 		user.name = form.name.data
 
 		user.email = form.email.data
+
+		user.dob = form.dob.data
+
+		user.gender = form.gender.data
 
 		db.session.add(user)
 
@@ -196,6 +200,8 @@ def convertSpeechToText():
 
 	data = request.files['audio_file'].read()
 
+	print(data)
+
 
 	if path.exists("app/static/audioFiles/audio.wav"):
 		os.remove("app/static/audioFiles/audio.wav")
@@ -207,13 +213,6 @@ def convertSpeechToText():
 		os.remove("app/static/audioFiles/audio_converted_wav.wav")
 
 	wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app/static/audioFiles/audio_converted_wav.wav")
-	
-
-	# current_time = datetime.datetime.now()
-
-	# audio_file_path = "/static/audioFiles/" + current_user.email + '_' + str(current_time) + '.wav'
-
-	# wemp_to_wav_convertor("app/static/audioFiles/audio.wav", "app{}".format(audio_file_path))
 	
 	# Instantiates a client
 	client = speech.SpeechClient()
@@ -256,13 +255,6 @@ def convertSpeechToText():
 		print("Transcript: {}".format(result.alternatives[0].transcript))
 		transcript_array.append(result.alternatives[0].transcript)
 		transcript+=result.alternatives[0].transcript
-
-
-	# audio_obj = Audio(audio_file_name=audio_file_path, transcript=transcript, user_id=current_user.id)
-
-	# db.session.add(audio_obj)
-
-	# db.session.commit()
 
 	return jsonify({"status":"success", "Transcript":transcript_array})
 

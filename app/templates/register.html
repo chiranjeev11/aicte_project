@@ -4,7 +4,7 @@
         <div class="col-md-5 mx-auto">
 			<h1 class="text-center">Login</h1>
 
-			<form method="post" novalidate>
+			<form method="post" class="submit-form" novalidate>
 				{{ form.hidden_tag() }}
                 <div class="mb-3">
 					{{ form.name.label(for="name", class="form-label") }}
@@ -21,11 +21,26 @@
 					{% endfor %}
 				</div>
 				<div class="mb-3">
+					{{ form.dob.label(for="dob", class="form-label") }}
+					{{ form.dob(size=32,type="date", class="form-control", id="dob") }}
+					{% for error in form.dob.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+				<div class="mb-3">
+					{{ form.gender.label(for="gender", class="form-label") }}
+					{{ form.gender(size=32,type="text", class="form-control", id="gender") }}
+					{% for error in form.gender.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+				<div class="mb-3">
 					{{ form.password.label(for="password", class="form-label") }}
 					{{ form.password(size=32,type="password", class="form-control", id="password") }}
 					{% for error in form.password.errors %}
 					<span style="color: red">[{{ error }}]</span>
 					{% endfor %}
+					<span class="small password-message" style="color: red; display: none;">Please enter min 8 characters, at least a symbol, upper and lower case letters and a number</span>
 				</div>
                 <div class="mb-3">
 					{{ form.password2.label(for="password2", class="form-label") }}
@@ -35,10 +50,38 @@
 					{% endfor %}
 				</div>
 				
-				<div style="text-align: end;">
-					{{ form.submit(class="btn btn-outline-primary") }}
-				</div>
+				
 			</form>
+			<div style="text-align: end;">
+				<button class="btn btn-outline-primary register-button not-validated">Register</button>
+			</div>
 		</div>
+
+		<script>
+			$(document).ready(()=>{
+				$('#password').on('input', (e)=>{
+					let password_regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/
+					let result = password_regex.test(e.target.value)
+					if (result){
+						$('.password-message').hide()
+						$('.register-button').removeClass('not-validated')
+					}
+					else{
+						$('.password-message').show()
+						$('.register-button').addClass('not-validated')
+					}
+				})
+				$('.register-button').on('click', ()=>{
+					console.log('clicked')
+					if ($('.register-button').hasClass('not-validated')){
+						console.log('password not validated')
+					}
+					else{
+						console.log('yo')
+						$('.submit-form').submit()
+					}
+				})
+			})
+		</script>
         
 {% endblock %}

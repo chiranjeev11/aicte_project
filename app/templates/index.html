@@ -267,6 +267,7 @@
 	$('#translate').on('click', ()=>{
 		let formdata_audioFile = new FormData();
 		file =$('#audio-file').prop('files')[0];
+		console.log(file.size)
 		formdata_audioFile.append("audio_file", file);
 		fetch("/audioBlob", { method: 'POST', body: formdata_audioFile }).then(
 			response=> response.json()

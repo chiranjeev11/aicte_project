@@ -1,39 +1,35 @@
 {% extends 'base.html' %}
 
 {% block content %}
-       <div class="d-flex flex-column justify-content-center align-items-center" style="height: 85vh;">
-			
-			<div class="form-group" style="height: 20vh;">
+	<h4 class="mt-3">Hello {{ current_user.name }}</h4>
+       <div class="d-flex justify-content-center align-items-center" style="height: 30vh;">
+			<div class="form-group" >
 				<label for="audio-file">Select a file</label>
 				<input id="audio-file" class="form-control-file" type="file" accept=".mp3, .wav, .m4a">
 				<button id="translate" class="btn btn-primary mt-3" style="display: none;">Translate</button>
 			</div>
-			<h4 class="mt-4">OR</h4>
-			<h5 class="mb-4">Record Live</h5>
-			<div style="height: 20vh;">
+			<h3>OR</h3>
+			<div class="ml-3">
+				<h5 class="ml-5">Record Live</h5>
 				<div class="mb-5 text-center">
 					<img class="btn not-recording" id="recorder" src="/static/icons/microphone-off.png">
 				 </div>
-	
-				<div class="p-3 mb-2 bg-light text-dark rounded" id="response-text">
-					Press mic button to record
-				</div>
 			</div>
-
+		</div>
+		<div class="text-center p-3 bg-light text-dark rounded" id="response-text">
+			Choose file or Press record button to translate speech to text
+		</div>
+		<div id="rating-div" class="mt-3 p-3 text-center">
+			<div class="mb-3">
+				<button id="save-button" style="width: 120px;" class="btn btn-primary mr-2">Save</button>
+				<button id="discard-button" style="width: 120px;" class="btn btn-secondary">Discard</button>
+			</div>
+			<div>
+				<button type="button" class="btn btn-info" style="width: 250px;" data-toggle="modal" data-target="#feedbackModal">
+					Give us Feedback
+				</button>
+			</div>
 			
-
-			<div id="rating-div" style="display: none;" class="mt-3 p-3">
-				<div class="mb-3">
-					<button id="save-button" class="btn btn-primary mr-2">Save</button>
-					<button id="discard-button" class="btn btn-secondary">Discard</button>
-				</div>
-				<div>
-					<button type="button" class="btn btn-info" data-toggle="modal" data-target="#feedbackModal">
-						Give us Feedback
-					</button>
-				</div>
-				
-			</div>
 		</div>
 
   
@@ -265,6 +261,7 @@
 	});
 	
 	$('#translate').on('click', ()=>{
+		$('#response-text').text("Loading...  Please Wait")
 		let formdata_audioFile = new FormData();
 		file =$('#audio-file').prop('files')[0];
 		console.log(file.size)

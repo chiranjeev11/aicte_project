@@ -196,11 +196,7 @@ def logout():
 @login_required
 def convertSpeechToText():
 
-
-
 	data = request.files['audio_file'].read()
-
-	print(data)
 
 
 	if path.exists("app/static/audioFiles/audio.wav"):

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+	<form action="" method="post" class="form border border-primary mt-5 col-sm-6 px-0" novalidate>
+		<div class="d-flex justify-content-center align-items-center font-italic text-white mb-3" style="font-size: 20px; height: 60px;background: linear-gradient(to right, blue, purple)">
+			Reset Password Request
+		</div>
+
+		{{ form.hidden_tag() }}
+		<div class="form-content">
+			<div class="col">
+				<div class="form-group">
+					{{ form.email(size=32,type="text", class="form-control", placeholder="Enter Email *") }}
+					{% for error in form.email.errors %}
+					<span style="color: red">[{{ error }}]</span>
+					{% endfor %}
+				</div>
+
+				<div class="form-group d-md-flex  justify-content-center align-items-center">
+					{{ form.submit(class="btn btn-outline-primary", value="Request") }}
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+{% endblock %}

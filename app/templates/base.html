@@ -67,43 +67,55 @@
         .star.rated{
             counter-increment: rateme 1;
         }
+
 		/* The sidebar menu */
-.sidebar {
-  height: 100%; /* 100% Full-height */
-  position: fixed; /* Stay in place */ 
-  top: 0;
-  left: 0;
-  background-color: #111; /* Black*/
-  overflow-x: hidden; /* Disable horizontal scroll */
-  margin-top: 90px;
-  padding-top: 20px; /* Place content 60px from the top */
-}
+		.sidebar {
+		margin: 0;
+		padding: 0;
+		width: 200px;
+		background-color: white;
+		position: fixed;
+		height: 100%;
+		overflow: auto;
+		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+		}
 
-/* The sidebar links */
-.sidebar a {
-  padding: 8px 8px 8px 8px;
-  text-decoration: none;
-  font-size: 20px;
-  color: #818181;
-  display: block;
-}
+		.sidebar a {
+		display: block;
+		color: black;
+		padding: 16px;
+		text-decoration: none;
+		}
 
-/* When you mouse over the navigation links, change their color */
-.sidebar a:hover {
-  color: #f1f1f1;
-}
+		.sidebar a.active {
+		background-color: #04AA6D;
+		color: white;
+		}
 
+		.sidebar a:hover:not(.active) {
+		background-color: black;
+		color: white;
+		}
 
-/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-@media screen and (max-height: 450px) {
-  .sidebar {padding-top: 15px;}
-  .sidebar a {font-size: 18px;}
-}
-	</style>
+		@media screen and (max-width: 700px) {
+		.sidebar {
+			width: 100%;
+			height: auto;
+			position: relative;
+		}
+		.sidebar a {float: left;}
+		div.content {margin-left: 0;}
+		}	
+		@media screen and (max-width: 400px) {
+		.sidebar a {
+			text-align: center;
+			float: none;
+		}
+	}
+</style>
 </head>
 <body>
-	<nav class="navbar sticky-top navbar-expand-md navbar-light bg-light">
-		<div class="container">
+	<nav class="navbar sticky-top navbar-expand navbar-dark" style="background-color: black;">
 			<a href="{{ url_for('index') }}" class="navbar-brand"><img src="/static/images/logo_image.jpeg" height="17%" width="17%" class="mr-3" >THE RAKSHAK</a>
 			<button class="navbar-toggler" data-toggle='collapse' data-target="#navbarContent"aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -126,7 +138,6 @@
 				</ul>
 
 			</div>
-		</div>
 
 	</nav>
 	
@@ -175,10 +186,8 @@
 	        {% endwith %}
 		</div>
 	</div>
-	 
-	<div class="container">
-		<div>
-			{% if current_user.is_authenticated %}
+
+	{% if current_user.is_authenticated %}
 			<div id="mySidebar" class="sidebar">
 				<a href="{{ url_for('index') }}">Home</a>
 				<a href="{{ url_for('audio') }}">Audio</a>
@@ -189,8 +198,9 @@
 				<a href="{{ url_for('change_password') }}">Change Password</a>
 			</div>
 			{% endif %}
-		</div>
-		<div style="width: 80vw; margin-left: 65px;">
+	 
+	<div class="container">
+		<div>
 			{% block content %}
 			{% endblock %}
 		</div>

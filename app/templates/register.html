@@ -2,7 +2,7 @@
 
 {% block content %}
         <div class="col-md-5 mx-auto">
-			<h1 class="text-center">Login</h1>
+			<h1 class="text-center">Register</h1>
 
 			<form method="post" class="submit-form" novalidate>
 				{{ form.hidden_tag() }}
@@ -29,7 +29,7 @@
 				</div>
 				<div class="mb-3">
 					{{ form.gender.label(for="gender", class="form-label") }}
-					{{ form.gender(size=32,type="text", class="form-control", id="gender") }}
+					{{ form.gender(type="text", class="form-control", id="gender") }}
 					{% for error in form.gender.errors %}
 					<span style="color: red">[{{ error }}]</span>
 					{% endfor %}

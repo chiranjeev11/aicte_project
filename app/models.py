@@ -7,6 +7,7 @@ from app import login
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 from datetime import datetime
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 
 class User(UserMixin, db.Model):
@@ -39,6 +40,29 @@ class User(UserMixin, db.Model):
 	def check_password(self, password):
 
 		return check_password_hash(self.password_hash, password)
+
+	def get_reset_token(self):
+
+		s = Serializer(current_app.config['SECRET_KEY'], 1800)
+
+		token = s.dumps({'user_id': self.id}).decode('utf-8')
+
+		return token
+
+	@staticmethod
+	def verify_token(token):
+
+		s = Serializer(current_app.config['SECRET_KEY'], 1800)
+
+		try:
+
+			user_id = s.loads(token)['user_id']
+
+		except:
+
+			return None
+
+		return User.query.get(user_id)
 
 
 class Audio(db.Model):

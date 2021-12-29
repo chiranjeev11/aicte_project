@@ -4,13 +4,14 @@ from google.cloud import speech
 # from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import storage
 from flask_login import current_user, login_user, logout_user, login_required
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, ChangePasswordForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, ChangePasswordForm, RequestResetForm, ResetPasswordForm
 from app.models import Audio, User, User_Feedback
+from flask_mail import Message
 import os
 import os.path
 from os import path
 
-from app import app, db, login
+from app import app, db, login, mail
 import ffmpeg
 import datetime
   
@@ -124,7 +125,7 @@ def edit_profile():
 	
 	form = EditProfileForm()
 
-	user = User.query.filter_by(name=current_user.name).first()
+	user = User.query.filter_by(email=current_user.email).first()
 
 	if form.validate_on_submit():
 
@@ -143,7 +144,7 @@ def edit_profile():
 		flash('Details Edited Successfully', 'message')
 
 
-	return render_template('edit_profile.html', form=form, user=user)
+	return render_template('edit_profile.html', form=form, user=user, gender_data = form.gender.data)
 
 @app.route('/change_password', methods=['POST', 'GET'])
 @login_required
@@ -241,8 +242,6 @@ def convertSpeechToText():
 
 	response = operation.result(timeout=90)
 
-	print(response)
-
 	transcript = ""
 
 	transcript_array = []
@@ -320,8 +319,71 @@ def audio_delete():
 
 	return jsonify({"status":"success"})
 
+@app.route('/reset_password', methods=['POST', 'GET'])
+def reset_request():
+
+	if current_user.is_authenticated:
+
+		return redirect(url_for('index'))
+
+	form = RequestResetForm()
+
+	if form.validate_on_submit():
+
+		user = User.query.filter_by(email=form.email.data).first()
+
+		send_reset_email(user)
+
+		flash('An email has been sent with instructions to reset your password.')
+
+		return redirect(url_for('login'))
+
+	return render_template('reset_request.html', title='Reset Password' , form=form)
+
+@app.route('/reset_password/<token>', methods=['POST', 'GET'])
+def reset_token(token):
+
+	if current_user.is_authenticated:
+
+		return redirect(url_for('index'))
+
+	user = User.verify_token(token)
+
+	if user is None:
+
+		flash('This is an invalid or expired token', 'warning')
+		return redirect(url_for('reset_request'))
+
+	form = ResetPasswordForm()
+
+	if form.validate_on_submit():
+
+		user.set_password(form.password.data)
+
+		db.session.commit()
+
+		flash('Your password as been updated. You are now able to login.')
+
+		return redirect(url_for('login'))
+
+	return render_template('reset_token.html', title='Reset Password', form=form)
+
 def wemp_to_wav_convertor(input_file, output_file):
 
 	stream = ffmpeg.input(input_file)
 	stream = ffmpeg.output(stream, output_file)
 	ffmpeg.run(stream)
+
+def send_reset_email(user):
+	
+	token = user.get_reset_token()
+
+
+	msg = Message('Pasword Reset Request', sender='noreply@demo.com', recipients=[user.email])
+
+
+	msg.body = f'''To reset your password, visit here:
+	{url_for('reset_token', token=token, _external=True)}
+	'''
+
+	mail.send(msg)

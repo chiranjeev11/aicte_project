@@ -44,10 +44,29 @@
 				</div>
 				<div class="form-group m-4">
 					{{ form.gender.label() }}
-					{% if current_user.gender=="Admin" %}
-					{{ form.gender(size=32,type="text", class="form-control", value=user.gender, placeholder="Enter Gender *", readonly="true")}}
-					{% else %}
-					{{ form.gender(size=32,type="text", class="form-control", value=user.gender, placeholder="Enter Gender *")}}
+					{% if current_user.gender %}
+					<select name="gender" value='{{ user.gender }}' class="form-control">
+						{% if user.gender=='none' %}
+						<option value="none" selected="selected">Select</option>
+						{% else %}
+						<option value="none" >Select</option>
+						{% endif %}
+						{% if user.gender=='male' %}
+						<option value="male" selected="selected">Male</option>
+						{% else %}
+						<option value="male">Male</option>
+						{% endif %}
+						{% if user.gender=='female' %}
+						<option value="female" selected="selected">Female</option>
+						{% else %}
+						<option value="female" >Female</option>
+						{% endif %}
+						{% if user.gender=='others' %}
+						<option value="others" selected="selected">Others</option>
+						{% else %}
+						<option value="others" >Others</option>
+						{% endif %}
+					</select>
 					{% endif %}
 					{% for error in form.gender.errors %}
 					<span class="small" style="color: red">{{ error }}</span>
